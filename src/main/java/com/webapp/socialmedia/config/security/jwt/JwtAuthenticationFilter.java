@@ -1,7 +1,15 @@
 package com.webapp.socialmedia.config.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webapp.socialmedia.config.exceptions.custom.ApiRequestException;
+import com.webapp.socialmedia.config.exceptions.exception.ApiExceptionDetails;
 import com.webapp.socialmedia.config.security.CustomUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -23,6 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private ObjectMapper mapper;
 
 
     @Override
@@ -38,8 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // try-catch skipped
             try {
                 username = this.jwtUtil.getUsernameFromToken(jwtToken);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (ExpiredJwtException e) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write(mapper.writeValueAsString(new ApiExceptionDetails("JWT token expired",
+                        HttpStatus.UNAUTHORIZED, LocalDateTime.now())));
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                return;
             }
 
             UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);

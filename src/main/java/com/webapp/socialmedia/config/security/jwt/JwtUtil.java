@@ -3,6 +3,7 @@ package com.webapp.socialmedia.config.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
@@ -21,9 +22,11 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static final long serialVersionUID = -2550185165626007488L;
-    public static final long JWT_TOKEN_VALIDITY = 24 * 60 * 60;
+    @Value("${auth.jwt.ttl}")
+    public long JWT_TOKEN_VALIDITY;
 
-    private String secret = "secretKey";
+    @Value("${auth.jwt.secret}")
+    private String secret;
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);

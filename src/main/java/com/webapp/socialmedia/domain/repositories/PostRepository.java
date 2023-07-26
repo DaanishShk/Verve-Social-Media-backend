@@ -35,7 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "   LEFT JOIN Comment c ON p.id = c.postId " +
             "WHERE ( :sgId IS NULL OR p.id = :sgId ) " +
             "   AND ( :visi IS NULL OR p.visibility IN (:visi) ) " +
-            "   AND ( COALESCE(:accs, null) IS NULL OR p.account IN (:accs) ) " +
+            "   AND ( (:accs) IS NULL OR p.account IN (:accs) ) " +
             "GROUP BY p, a ") // put Distinct or else each unique vote gets mapped once to every comment (or just divide by commentsLength)
     List<PostDto> getPostsWithVotesAndUserVoteType(@Param(value = "visi") List<Visibility> visibility,
                                                    @Param(value = "user") Account user,
