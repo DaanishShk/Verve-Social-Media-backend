@@ -41,9 +41,9 @@ public class CommentService {
         comment.setAccount(account);
         comment.setCountVotes(new CountVotes());
         comment.setPostId(id);
-        commentRepository.save(comment);
-
         this.incrementTotalComments(account);
+
+        commentRepository.save(comment);
         return comment;
     }
 
