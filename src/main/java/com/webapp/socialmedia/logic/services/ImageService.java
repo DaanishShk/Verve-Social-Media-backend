@@ -2,6 +2,8 @@ package com.webapp.socialmedia.logic.services;
 
 import com.webapp.socialmedia.domain.model.image.Image;
 import com.webapp.socialmedia.domain.repositories.ImageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,15 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Iterator;
 
 @Service
 public class ImageService {
@@ -31,6 +26,7 @@ public class ImageService {
 
    @Autowired
     private AccountProfileService accountProfileService;
+   private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
     public void saveImage(Image image) {
        imageRepository.save(image);
@@ -48,7 +44,7 @@ public class ImageService {
                 fileInputStream.read(bFile);
                 fileInputStream.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info("No profile picture for user " + username);
             }
             final HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
@@ -72,7 +68,7 @@ public class ImageService {
                 fileInputStream.read(bFile);
                 fileInputStream.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.info("No background for user " + username);
             }
             final HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);

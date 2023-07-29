@@ -50,6 +50,7 @@ public class Post implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(length = 100)
     private String title;
     @Enumerated(EnumType.STRING)
     private PostType type;
