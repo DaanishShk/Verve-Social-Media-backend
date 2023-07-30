@@ -27,6 +27,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
 //    @JsonIgnore  was ignoring property read as well
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;    // Bcrypt generates long password hash
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
 
 //    @JsonIgnore
