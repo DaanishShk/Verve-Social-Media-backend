@@ -61,6 +61,12 @@ public class PostController {
         return postService.postVote(vote, id);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String deletePost(@PathVariable Long id) {
+        return postService.removePost(id);
+    }
+
     @GetMapping("/test")
     public List<Post> getJPQL() {
         return postService.getPostsFromQuery(List.of(Visibility.PUBLIC),

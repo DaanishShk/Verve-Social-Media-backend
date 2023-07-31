@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.logic.services;
 
+import com.webapp.socialmedia.config.exceptions.custom.ApiRequestException;
 import com.webapp.socialmedia.config.exceptions.custom.PrivatePostException;
 import com.webapp.socialmedia.domain.model.account.Account;
 import com.webapp.socialmedia.domain.model.comment.Comment;
@@ -163,5 +164,20 @@ public class PostService {
 
     private long zeroCheckForCommentsLength(PostRepository.PostDto postDto) {
         return postDto.getCommentsLength() != 0 ? postDto.getCommentsLength(): 1;
+    }
+
+    public String removePost(Long id) {
+        Post post = postRepository.findPostById(id);
+        if(post == null) {
+            throw new ApiRequestException("Post does not exist");
+        }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Account account = accountService.getByUsername(username);
+        if(!post.getAccount().getUsername().equals(username)) {
+            throw new ApiRequestException("Post does not belong to user");
+        }
+        account.getStats().setTotalPosts(account.getStats().getTotalPosts()-1);
+        postRepository.deleteById(id);
+        return "Post deleted";
     }
 }
