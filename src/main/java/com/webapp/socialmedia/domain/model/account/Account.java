@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.domain.model.account;
 
 import com.fasterxml.jackson.annotation.*;
+import com.webapp.socialmedia.domain.model.account.security.UserRoles;
 import com.webapp.socialmedia.domain.model.image.Image;
 import com.webapp.socialmedia.domain.model.post.Post;
 import com.webapp.socialmedia.domain.model.stats.ProfileStats;
@@ -8,12 +9,11 @@ import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -55,13 +55,20 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @JsonBackReference("following")
     private Set<Account> following;     // check how spring creates a contains method (by id maybe?)
 
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    @JsonIgnore
+    private Set<UserRoles> roles = new HashSet<>();
 //    @JsonIgnore
 //    private boolean enabled = false;
 
     @Override
-    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (UserRoles role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.name()));
+        }
+        return authorities;
     }
 
     @Override
