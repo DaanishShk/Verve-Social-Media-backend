@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Entity
@@ -55,10 +56,10 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @JsonBackReference("following")
     private Set<Account> following;     // check how spring creates a contains method (by id maybe?)
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @JsonIgnore
-    private Set<UserRoles> roles = new HashSet<>();
+    private Set<UserRoles> roles;
 //    @JsonIgnore
 //    private boolean enabled = false;
 
