@@ -53,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/exception/**").permitAll()
                 .antMatchers("/accounts/activation").permitAll()
+                .antMatchers("/stomp-endpoint/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // avoids sessionid cookie creation?

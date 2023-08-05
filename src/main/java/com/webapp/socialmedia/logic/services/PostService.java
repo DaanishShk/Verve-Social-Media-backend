@@ -33,6 +33,8 @@ public class PostService {
 
     @Autowired
     private VoteService voteService;
+    @Autowired
+    private NotificationService notificationService;
 
 
 
@@ -82,6 +84,7 @@ public class PostService {
         Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
         if(post.getAccount().getUsername().equals(account.getUsername())) {
+            notificationService.notifyUser();
             return post;
         } else if(post.getVisibility()==Visibility.FRIENDS && !account.getFriends().contains(post.getAccount())) {
             throw new PrivatePostException("post is only visible to friends");
