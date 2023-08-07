@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    public List<Notification> findByOwnerAccountOrderByTimestampDesc(Account ownerAccount);
+    public List<Notification> findByOwnerAccountOrderByTimestampDesc(Account ownerAccount); //TODO use join fetch or else N+1 problem
 
     public Long countNotificationsByOwnerAccountAndViewedIsFalse(Account ownerAccount);
 }

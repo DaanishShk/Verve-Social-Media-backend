@@ -7,6 +7,7 @@ import com.webapp.socialmedia.domain.model.stats.CountVotes;
 import com.webapp.socialmedia.domain.model.stats.Vote;
 import com.webapp.socialmedia.domain.repositories.CommentRepository;
 import com.webapp.socialmedia.logic.events.AccountEvent;
+import com.webapp.socialmedia.logic.events.CommentEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,8 @@ public class CommentService {
     private VoteService voteService;
     @Autowired
     private AccountEvent accountEvent;
+    @Autowired
+    private CommentEvent commentEvent;
 
     public Comment addComment(Comment comment, Long id) {
         comment.setTimestamp(LocalDateTime.now(ZoneOffset.UTC));
@@ -47,6 +50,7 @@ public class CommentService {
         this.incrementTotalComments(account);
 
         commentRepository.save(comment);
+        commentEvent.tagUsers(comment, account);
         return comment;
     }
 
