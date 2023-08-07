@@ -1,28 +1,26 @@
 package com.webapp.socialmedia.logic.events;
 
 import com.webapp.socialmedia.domain.model.account.relations.FriendRequest;
-import com.webapp.socialmedia.domain.model.account.relations.FriendRequestState;
 import com.webapp.socialmedia.domain.model.notifications.NotificationType;
 import com.webapp.socialmedia.logic.services.NotificationService;
 import com.webapp.socialmedia.logic.utils.SpringApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.PostRemove;
 
 @Component
-public class FriendRequestListener {
+public class FriendRequestEvent {
 
-
+    @Autowired
+    private NotificationService notificationService;
     private String messageFormat = "%s accepted your friend request";
 
     @PostRemove
-    private void sendNotification(FriendRequest friendRequest) {
-        NotificationService notificationService = SpringApplicationContext.getBean(NotificationService.class);
+    public void sendNotification(FriendRequest friendRequest) {
         if (friendRequest.getRequestState() == null) return;
         notificationService.createNotification(
-                String.format(messageFormat, friendRequest.getReceiver()),
+                String.format(messageFormat, friendRequest.getReceiver().getDisplayName()),
                 friendRequest.getSender(),
                 friendRequest.getReceiver(),
                 null,

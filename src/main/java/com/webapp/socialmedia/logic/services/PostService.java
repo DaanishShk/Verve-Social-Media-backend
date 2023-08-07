@@ -8,6 +8,7 @@ import com.webapp.socialmedia.domain.model.post.Post;
 import com.webapp.socialmedia.domain.model.post.Visibility;
 import com.webapp.socialmedia.domain.model.stats.Vote;
 import com.webapp.socialmedia.domain.repositories.PostRepository;
+import com.webapp.socialmedia.logic.events.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
@@ -34,8 +35,7 @@ public class PostService {
     @Autowired
     private VoteService voteService;
     @Autowired
-    private NotificationService notificationService;
-
+    private AccountEvent accountEvent;
 
 
     public Post saveNewPost(Post post) {
@@ -57,7 +57,8 @@ public class PostService {
     @Transactional
     @Async
     void incrementTotalPosts(Account account) {
-        account.getStats().setTotalPosts(account.getStats().getTotalPosts()+1);
+        account.getStats().setTotalPosts(account.getStats().getTotalPosts() + 1);
+        accountEvent.postCountNotification(account);
     }
 
     public void savePost(Post post) {
@@ -76,16 +77,16 @@ public class PostService {
                 "timestamp"
         );
 
-        if(posts.isEmpty()) {
+        if (posts.isEmpty()) {
             throw new IllegalStateException("post does not exist");
         }
 
         Post post = posts.get(0);
         Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        if(post.getAccount().getUsername().equals(account.getUsername())) {
+        if (post.getAccount().getUsername().equals(account.getUsername())) {
             return post;
-        } else if(post.getVisibility()==Visibility.FRIENDS && !account.getFriends().contains(post.getAccount())) {
+        } else if (post.getVisibility() == Visibility.FRIENDS && !account.getFriends().contains(post.getAccount())) {
             throw new PrivatePostException("post is only visible to friends");
         }
 
@@ -132,8 +133,8 @@ public class PostService {
 
         List<Post> posts = this.getPostsFromQuery(
                 isFriend || profileAccount.getUsername().equals(
-                        SecurityContextHolder.getContext().getAuthentication().getName())?
-                        null: List.of(Visibility.PUBLIC),
+                        SecurityContextHolder.getContext().getAuthentication().getName()) ?
+                        null : List.of(Visibility.PUBLIC),
                 Set.of(profileAccount),
                 null,
                 sortCol
@@ -153,32 +154,32 @@ public class PostService {
                         accounts,
                         singlePostId,
                         Sort.by(Sort.Direction.DESC, sortCol)
-                        )
+                )
                 .stream()
                 .map((postDto -> new Post(postDto.getPost(),
                         postDto.getLikes() / zeroCheckForCommentsLength(postDto),
                         postDto.getDislikes() / zeroCheckForCommentsLength(postDto),
-                        postDto.getUserVoteType() / (int)zeroCheckForCommentsLength(postDto) ,
+                        postDto.getUserVoteType() / (int) zeroCheckForCommentsLength(postDto),
                         null,
                         postDto.getCommentsLength())))
                 .collect(Collectors.toList());
     }
 
     private long zeroCheckForCommentsLength(PostRepository.PostDto postDto) {
-        return postDto.getCommentsLength() != 0 ? postDto.getCommentsLength(): 1;
+        return postDto.getCommentsLength() != 0 ? postDto.getCommentsLength() : 1;
     }
 
     public String removePost(Long id) {
         Post post = postRepository.findPostById(id);
-        if(post == null) {
+        if (post == null) {
             throw new ApiRequestException("Post does not exist");
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountService.getByUsername(username);
-        if(!post.getAccount().getUsername().equals(username)) {
+        if (!post.getAccount().getUsername().equals(username)) {
             throw new ApiRequestException("Post does not belong to user");
         }
-        account.getStats().setTotalPosts(account.getStats().getTotalPosts()-1);
+        account.getStats().setTotalPosts(account.getStats().getTotalPosts() - 1);
         postRepository.deleteById(id);
         return "Post deleted";
     }

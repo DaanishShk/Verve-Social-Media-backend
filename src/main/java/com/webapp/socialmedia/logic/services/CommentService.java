@@ -6,6 +6,7 @@ import com.webapp.socialmedia.domain.model.post.Post;
 import com.webapp.socialmedia.domain.model.stats.CountVotes;
 import com.webapp.socialmedia.domain.model.stats.Vote;
 import com.webapp.socialmedia.domain.repositories.CommentRepository;
+import com.webapp.socialmedia.logic.events.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,8 @@ public class CommentService {
     private AccountService accountService;
     @Autowired
     private VoteService voteService;
+    @Autowired
+    private AccountEvent accountEvent;
 
     public Comment addComment(Comment comment, Long id) {
         comment.setTimestamp(LocalDateTime.now(ZoneOffset.UTC));
@@ -50,7 +53,8 @@ public class CommentService {
     @Transactional
     @Async
     void incrementTotalComments(Account account) {
-        account.getStats().setTotalComments(account.getStats().getTotalComments()+1);
+        account.getStats().setTotalComments(account.getStats().getTotalComments() + 1);
+        accountEvent.commentCountNotification(account);
     }
 
     public Comment getComment(Long id) {
@@ -79,7 +83,7 @@ public class CommentService {
 
     public List<Comment> getActivityComments(boolean isFriend, String username) {
         Pageable paging = PageRequest.of(0, 5);
-        if(isFriend || username.equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+        if (isFriend || username.equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
             return commentRepository.findCommentsByAccount_UsernameOrderByTimestampDesc(username, paging).getContent();
         }
         return commentRepository.findCommentsByPostVisibilityPublic(username, paging).getContent();

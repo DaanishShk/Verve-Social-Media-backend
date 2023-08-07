@@ -6,6 +6,7 @@ import com.webapp.socialmedia.domain.model.stats.ProfileStats;
 import com.webapp.socialmedia.domain.repositories.AccountProfileRepository;
 import com.webapp.socialmedia.domain.repositories.AccountRepository;
 import com.webapp.socialmedia.domain.responses.FollowResponse;
+import com.webapp.socialmedia.logic.events.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,8 @@ public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private AccountEvent accountEvent;
 
     public Account getByUsername(String username) {
         return accountRepository.findAccountByUsername(username);
@@ -63,13 +66,16 @@ public class AccountService {
         Account account = accountRepository.findAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         Set<Account> following = account.getFollowing();
 
-        if(following.contains(followAccount)) {     // how is this working?
+        if (following.contains(followAccount)) {     // how is this working?
             following.remove(followAccount);
             accountRepository.save(account);
             return new FollowResponse("Follow");
         }
-        following.add(accountRepository.getById(followAccount.getId()));
+        followAccount = accountRepository.getById(followAccount.getId());
+        following.add(followAccount);
         accountRepository.save(account);
+
+        accountEvent.followerCountNotification(followAccount, getNumberFollowers(followAccount));
 
         return new FollowResponse("Following");
 //                System.out.println("Follow Account = "+followAccount.hashCode());
@@ -106,7 +112,7 @@ public class AccountService {
 //    }
 
     public Long getNumberFollowers(Account account) {
-        return  accountRepository.countAccountsByFollowing(account);
+        return accountRepository.countAccountsByFollowing(account);
     }
 
     public boolean checkIfUsernameExists(String username) {

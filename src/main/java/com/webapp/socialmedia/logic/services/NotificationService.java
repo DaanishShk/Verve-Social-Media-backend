@@ -20,17 +20,13 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
     @Autowired
-    private  SimpMessagingTemplate websocket;
-    @Autowired
-    private AccountService accountService;
+    private SimpMessagingTemplate websocket;
 
-    public List<Notification> getNotifications() {
-        Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-        return notificationRepository.findByOwnerAccount(account);
+    public List<Notification> getNotifications(Account account) {
+        return notificationRepository.findByOwnerAccountOrderByTimestampDesc(account);
     }
 
-    public Long numberOfNotViewedNotifications() {
-        Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+    public Long numberOfNotViewedNotifications(Account account) {
         return notificationRepository.countNotificationsByOwnerAccountAndViewedIsFalse(account);
     }
 
@@ -47,6 +43,6 @@ public class NotificationService {
     }
 
     public void notifyUser(Account ownerAccount) {
-        this.websocket.convertAndSendToUser(ownerAccount.getUsername(),  "/notifications","New notification");       // /user/{username}/destination
+        this.websocket.convertAndSendToUser(ownerAccount.getUsername(), "/notifications", "New notification");       // /user/{username}/destination
     }
 }

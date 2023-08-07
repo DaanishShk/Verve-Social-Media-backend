@@ -5,6 +5,7 @@ import com.webapp.socialmedia.domain.model.account.relations.FriendRequest;
 import com.webapp.socialmedia.domain.model.account.relations.FriendRequestState;
 import com.webapp.socialmedia.domain.repositories.FriendRequestRepository;
 import com.webapp.socialmedia.domain.responses.FriendRequestsResponse;
+import com.webapp.socialmedia.logic.events.FriendRequestEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class FriendRequestService {
     @Autowired
     private AccountService accountService;
     @Autowired
-    private NotificationService notificationService;
+    private FriendRequestEvent friendRequestEvent;
 
     public void addRequest(FriendRequest friendRequest) {
         Account sender = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -61,6 +62,7 @@ public class FriendRequestService {
             accountService.saveAccount(receiver);
         }
         friendRequestRepository.delete(friendRequest);
+        friendRequestEvent.sendNotification(friendRequest);
         return "request processed successfully";
     }
 
