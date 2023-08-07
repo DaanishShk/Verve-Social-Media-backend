@@ -25,7 +25,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
 
     @Column(length = 30)
     private String username;
-//    @JsonIgnore  was ignoring property read as well
+    //    @JsonIgnore  was ignoring property read as well
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;    // Bcrypt generates long password hash
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -41,7 +41,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     private String displayName;
 
 
-//    @OneToMany(fetch = FetchType.LAZY)
+    //    @OneToMany(fetch = FetchType.LAZY)
 ////    @JsonIgnore
 ////    @JsonBackReference
 //    private List<Post> posts;        // was causing infinite recursion
@@ -66,6 +66,8 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        if (roles == null) return authorities;
+
         for (UserRoles role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.name()));
         }

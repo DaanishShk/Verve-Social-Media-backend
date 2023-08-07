@@ -1,5 +1,5 @@
 package com.webapp.socialmedia.domain.model.notifications;
 
 public enum NotificationType {
-    ACHIEVEMENT, POST
+    ACHIEVEMENT, FRIEND_REQUEST, IMAGE, TEXT, VIDEO
 }

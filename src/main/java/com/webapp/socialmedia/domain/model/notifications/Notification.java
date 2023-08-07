@@ -23,7 +23,9 @@ public class Notification extends AbstractPersistable<Long> {
     private LocalDateTime timestamp;
     private boolean viewed;
     @OneToOne
-    private Account account;
+    private Account ownerAccount;
+    @OneToOne
+    private Account messageAccount;
     @OneToOne
     private Post post;
     @Enumerated(EnumType.STRING)

@@ -1,15 +1,31 @@
 package com.webapp.socialmedia.logic.controllers;
 
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import com.webapp.socialmedia.domain.model.notifications.Notification;
+import com.webapp.socialmedia.logic.services.NotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.List;
+
+@RestController
+@RequestMapping("/notifications")
 public class NotificationsController {
 
-    @SendTo("/user/notifications")
-    public String taggedUser(String message) throws Exception {
-        Thread.sleep(1000); // simulated delay
-        return message;
+    private final Logger logger = LoggerFactory.getLogger(NotificationsController.class);
+    @Autowired
+    private NotificationService notificationService;
+
+    @GetMapping
+    public List<Notification> getNotifications() {
+        return notificationService.getNotifications();
+    }
+
+    @GetMapping("/new")
+    public Long getNotViewedNotifications() {
+        return notificationService.numberOfNotViewedNotifications();
     }
 }

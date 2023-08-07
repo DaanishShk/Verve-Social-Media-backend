@@ -23,6 +23,8 @@ public class FriendRequestService {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private NotificationService notificationService;
 
     public void addRequest(FriendRequest friendRequest) {
         Account sender = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -36,7 +38,7 @@ public class FriendRequestService {
         Set<Account> friends = receiver.getFriends();
         List<FriendRequest> list = friendRequestRepository.findFriendRequestByReceiver_Username(receiver.getUsername());
         List<FriendRequestsResponse> response = new ArrayList<>();
-        for(FriendRequest fr: list) {
+        for (FriendRequest fr : list) {
             Set<Account> common = fr.getSender().getFriends();
             common.retainAll(friends);
             response.add(new FriendRequestsResponse(fr, common));
@@ -47,9 +49,10 @@ public class FriendRequestService {
     public String completeRequest(FriendRequest friendRequest) {
         if (friendRequest.getRequestState() == FriendRequestState.ACCEPTED) {
             friendRequest = friendRequestRepository.getById(friendRequest.getId());
+            friendRequest.setRequestState(FriendRequestState.ACCEPTED);
             Account sender = friendRequest.getSender();
             Account receiver = friendRequest.getReceiver();
-            if(!SecurityContextHolder.getContext().getAuthentication().getName().equals(receiver.getUsername())) {
+            if (!SecurityContextHolder.getContext().getAuthentication().getName().equals(receiver.getUsername())) {
                 return "Receiver id does not match";
             }
             sender.getFriends().add(receiver);
