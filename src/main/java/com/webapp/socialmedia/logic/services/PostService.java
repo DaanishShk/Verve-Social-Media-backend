@@ -9,6 +9,7 @@ import com.webapp.socialmedia.domain.model.post.Visibility;
 import com.webapp.socialmedia.domain.model.stats.Vote;
 import com.webapp.socialmedia.domain.repositories.PostRepository;
 import com.webapp.socialmedia.logic.events.AccountEvent;
+import com.webapp.socialmedia.logic.events.PostEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
@@ -36,6 +37,8 @@ public class PostService {
     private VoteService voteService;
     @Autowired
     private AccountEvent accountEvent;
+    @Autowired
+    private PostEvent postEvent;
 
 
     public Post saveNewPost(Post post) {
@@ -48,7 +51,7 @@ public class PostService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountService.getByUsername(username);
         post.setAccount(account);
-        this.incrementTotalPosts(account);
+        this.incrementTotalPosts(account);              // self-invocation doesn't work because it bypasses the proxy and calls the underlying method directly.
 
         postRepository.save(post);
         return post;
@@ -90,6 +93,8 @@ public class PostService {
             throw new PrivatePostException("post is only visible to friends");
         }
 
+
+        postEvent.postStatus(post);
         return post;
 
     }

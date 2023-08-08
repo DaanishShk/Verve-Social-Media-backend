@@ -8,6 +8,7 @@ import com.webapp.socialmedia.logic.services.AccountService;
 import com.webapp.socialmedia.logic.services.NotificationService;
 import com.webapp.socialmedia.logic.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -22,9 +23,8 @@ public class CommentEvent {
     private NotificationService notificationService;
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private PostService postService;
 
+    @Async
     public void tagUsers(Comment comment, Account account) {
         Matcher matcher = userTag.matcher(comment.getContent());
         Post post = new Post();

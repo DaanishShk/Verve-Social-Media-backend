@@ -32,6 +32,7 @@ public class FriendRequestService {
         friendRequest.setSender(sender);
         friendRequest.setTimestamp(LocalDateTime.now(ZoneOffset.UTC));
         friendRequestRepository.save(friendRequest);
+        friendRequestEvent.requestSent(friendRequest);
     }
 
     public List<FriendRequestsResponse> getRequestsByReceiver() {
@@ -62,7 +63,7 @@ public class FriendRequestService {
             accountService.saveAccount(receiver);
         }
         friendRequestRepository.delete(friendRequest);
-        friendRequestEvent.sendNotification(friendRequest);
+        friendRequestEvent.requestConfirmation(friendRequest);
         return "request processed successfully";
     }
 

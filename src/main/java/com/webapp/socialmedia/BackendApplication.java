@@ -9,7 +9,6 @@ import org.springframework.web.multipart.support.MultipartFilter;
 
 // @Profile not working correctly
 @SpringBootApplication
-@EnableAsync                // required for asynchronous calls
 public class BackendApplication {
 
     public static void main(String[] args) {
