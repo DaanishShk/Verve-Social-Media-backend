@@ -14,9 +14,9 @@ import javax.persistence.*;
 @Setter
 public class Image extends AbstractPersistable<Long> {
 
-//    @Lob
-    @Type(type="org.hibernate.type.BinaryType")
-    @Basic(fetch = FetchType.LAZY)// check why annotation is deprecated
+    //    @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
+    @Basic(fetch = FetchType.EAGER)// check why annotation is deprecated
     private byte[] content;
 
 //    @OneToOne(mappedBy = "profilePic")

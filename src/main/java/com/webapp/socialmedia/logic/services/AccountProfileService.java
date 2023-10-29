@@ -53,7 +53,7 @@ public class AccountProfileService {
         boolean isFriend = false;
         String friendStatus = "Send Request";
         Account receiver = profile.getAccount(); //accountService.getByUsername(username);
-        if(account.getFriends().contains(receiver)) {
+        if (account.getFriends().contains(receiver)) {
             friendStatus = "Request Accepted";
             isFriend = true;
         } else if (friendRequestService.getRequestBySenderAndReceiver(account, receiver) != null) {
@@ -65,10 +65,10 @@ public class AccountProfileService {
 
         String followStatus = "Follow";
         Set<Account> following = account.getFollowing();
-        if(following.contains(accountService.getByUsername(username))) {
+        if (following.contains(accountService.getByUsername(username))) {
             followStatus = "Following";
         }
-        profile.setNumberFollowing((long)following.size());
+        profile.setNumberFollowing((long) following.size());
         profile.setNumberFollowers(accountService.getNumberFollowers(account));
 
 
@@ -86,7 +86,7 @@ public class AccountProfileService {
 
     public AccountProfile getProfileFromUsername(String username) {
         AccountProfile profile = accountProfileRepository.findAccountProfileByAccount_Username(username);
-        profile.setNumberFollowing((long)profile.getAccount().getFollowing().size());
+        profile.setNumberFollowing((long) profile.getAccount().getFollowing().size());
         profile.setNumberFollowers(accountService.getNumberFollowers(accountService.getByUsername(username)));
         return profile;
     }

@@ -7,6 +7,7 @@ import com.webapp.socialmedia.domain.model.post.Post;
 import com.webapp.socialmedia.domain.model.stats.ProfileStats;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,7 +36,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
 //    @OneToOne   // can get account info when go to profile
 //    private AccountProfile accountProfile;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Image profilePic;
     private String displayName;
@@ -56,21 +57,18 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @JsonBackReference("following")
     private Set<Account> following;     // check how spring creates a contains method (by id maybe?)
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
     @JsonIgnore
-    private Set<UserRoles> roles;
+    private String role;
 //    @JsonIgnore
 //    private boolean enabled = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (roles == null) return authorities;
+        if (role == null) return authorities;
 
-        for (UserRoles role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.name()));
-        }
+        authorities.add(new SimpleGrantedAuthority(role));
+
         return authorities;
     }
 
@@ -97,6 +95,5 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
 
 }

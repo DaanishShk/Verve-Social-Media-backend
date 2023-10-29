@@ -5,6 +5,9 @@ import com.webapp.socialmedia.domain.repositories.ImageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,24 +21,26 @@ import java.io.FileInputStream;
 @Service
 public class ImageService {
 
-   @Autowired
+    private final Logger logger = LoggerFactory.getLogger(ImageService.class);
+    @Autowired
     private ImageRepository imageRepository;
-
-   @Autowired
-   private AccountService accountService;
-
-   @Autowired
+    @Autowired
+    private AccountService accountService;
+    @Autowired
     private AccountProfileService accountProfileService;
-   private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
-    public void saveImage(Image image) {
-       imageRepository.save(image);
-   }
+    @Caching(evict = {
+            @CacheEvict(value = "imagesProfilePicture", key = "#username"),
+            @CacheEvict(value = "imagesBackground", key = "#username")})
+    public void saveImage(Image image, String username) {
+        imageRepository.save(image);
+    }
 
+    @Cacheable(value = "imagesProfilePicture", key = "#username")
     public ResponseEntity<byte[]> viewProfilePicture(@PathVariable String username) {
         Image image = accountService.getByUsername(username).getProfilePic();
         // TODO replace hardcoded image address
-        if(image == null) {
+        if (image == null) {
             File file = new File("D:\\Git Repositories\\Social-Media-webapp\\Backend\\src\\main\\resources\\static\\default_profilePicture.jpg"); //windows
             byte[] bFile = new byte[(int) file.length()];
 
@@ -56,11 +61,12 @@ public class ImageService {
         return new ResponseEntity<>(image.getContent(), headers, HttpStatus.FOUND);
     }
 
+    @Cacheable(value = "imagesBackground", key = "#username")
     public ResponseEntity<byte[]> viewBackground(@PathVariable String username) {
         Image image = accountProfileService.getBackgroundFromUsername(username);
 
-        if(image == null) {
-           File file = new File("D:\\Git Repositories\\Social-Media-webapp\\Backend\\src\\main\\resources\\static\\default_background.jpg"); //windows
+        if (image == null) {
+            File file = new File("D:\\Git Repositories\\Social-Media-webapp\\Backend\\src\\main\\resources\\static\\default_background.jpg"); //windows
             byte[] bFile = new byte[(int) file.length()];
 
             try {

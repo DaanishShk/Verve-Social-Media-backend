@@ -12,6 +12,7 @@ import com.webapp.socialmedia.logic.services.AccountProfileService;
 import com.webapp.socialmedia.logic.services.AccountService;
 import com.webapp.socialmedia.logic.services.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,7 +42,7 @@ public class SettingsController {
 
     @PostMapping("/general")
     private Account general(@RequestPart String displayName,
-                           @RequestPart(name="file") MultipartFile image)
+                            @RequestPart(name = "file") MultipartFile image)
             throws IOException {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -49,10 +50,10 @@ public class SettingsController {
         account.setDisplayName(displayName);
 
         Image im = account.getProfilePic();
-        if(im == null) im = new Image();
+        if (im == null) im = new Image();
         im.setContent(image.getBytes());
         im.setMediaType(image.getContentType());
-        imageService.saveImage(im);
+        imageService.saveImage(im, account.getUsername());
         account.setProfilePic(im);
 
         accountService.saveAccount(account);
@@ -64,10 +65,11 @@ public class SettingsController {
     public JwtResponse securityBasic(@RequestBody SecurityBasic basic) {
         Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        if(!passwordEncoder.matches(basic.getPassword(), account.getPassword())) throw new BadCredentialsException("Password was incorrect");
+        if (!passwordEncoder.matches(basic.getPassword(), account.getPassword()))
+            throw new BadCredentialsException("Password was incorrect");
 
-        if(basic.getUsername() != null) account.setUsername(basic.getUsername());
-        if(basic.getEmail() != null) account.setEmail(basic.getEmail());
+        if (basic.getUsername() != null) account.setUsername(basic.getUsername());
+        if (basic.getEmail() != null) account.setEmail(basic.getEmail());
 
         accountService.saveAccount(account);
 
@@ -79,9 +81,10 @@ public class SettingsController {
     public String securityPassword(@RequestBody SecurityPassword security) {
         Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         System.out.println(security);
-        if(!passwordEncoder.matches(security.getPassword(), account.getPassword())) throw new BadCredentialsException("Password was incorrect");
+        if (!passwordEncoder.matches(security.getPassword(), account.getPassword()))
+            throw new BadCredentialsException("Password was incorrect");
 
-        if(security.getNewPassword().equals(security.getConfirmPassword()))
+        if (security.getNewPassword().equals(security.getConfirmPassword()))
             account.setPassword(passwordEncoder.encode(security.getNewPassword()));
         accountService.saveAccount(account);
 
@@ -102,11 +105,11 @@ public class SettingsController {
     }
 
     @PostMapping("profile/main")
-    public AccountProfile profileMain(@RequestPart String aboutMe, @RequestPart MultipartFile background) throws IOException{
+    public AccountProfile profileMain(@RequestPart String aboutMe, @RequestPart MultipartFile background) throws IOException {
         AccountProfile profile = accountProfileService.getProfileFromUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         profile.setAboutMe(aboutMe);
-        Image image = new Image(background.getBytes(),background.getContentType());
-        imageService.saveImage(image);
+        Image image = new Image(background.getBytes(), background.getContentType());
+        imageService.saveImage(image, profile.getAccount().getUsername());
         profile.setBackground(image);
         accountProfileService.saveProfile(profile);
         return profile;

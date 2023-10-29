@@ -8,6 +8,8 @@ import com.webapp.socialmedia.domain.repositories.AccountRepository;
 import com.webapp.socialmedia.domain.responses.FollowResponse;
 import com.webapp.socialmedia.logic.events.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class AccountService {
     @Autowired
     private AccountEvent accountEvent;
 
+    @Cacheable(value = "accounts", key = "#username")
     public Account getByUsername(String username) {
         return accountRepository.findAccountByUsername(username);
     }
@@ -50,9 +53,10 @@ public class AccountService {
         account.setStats(new ProfileStats(0L, 0L, 0L));
         account.setDisplayName(account.getUsername());
 
-        accountRepository.save(account);
+        this.saveAccount(account);
     }
 
+    @CacheEvict(value = "accounts", key = "#account.username")
     public void saveAccount(Account account) {
         accountRepository.save(account);
     }
@@ -68,7 +72,7 @@ public class AccountService {
 
         if (following.contains(followAccount)) {     // how is this working?
             following.remove(followAccount);
-            accountRepository.save(account);
+            this.saveAccount(account);
             return new FollowResponse("Follow");
         }
         followAccount = accountRepository.getById(followAccount.getId());
@@ -89,15 +93,15 @@ public class AccountService {
         friend = accountRepository.findAccountByUsername(friend.getUsername());
         account.getFriends().remove(friend);
         friend.getFriends().remove(account);
-        accountRepository.save(friend);
-        accountRepository.save(account);
+        this.saveAccount(friend);
+        this.saveAccount(account);
         return "removed from friends";
     }
 
     public String removeFollowing(@RequestBody Account following) {
         Account account = accountRepository.findAccountByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         account.getFollowing().remove(following);
-        accountRepository.save(account);
+        this.saveAccount(account);
         return "removed from following";
     }
 
