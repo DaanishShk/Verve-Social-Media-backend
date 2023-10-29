@@ -38,7 +38,7 @@ public class ImageService {
 
     @Cacheable(value = "imagesProfilePicture", key = "#username")
     public ResponseEntity<byte[]> viewProfilePicture(@PathVariable String username) {
-        Image image = accountService.getByUsername(username).getProfilePic();
+        Image image = accountService.getProfilePictureFromUsername(username);
         // TODO replace hardcoded image address
         if (image == null) {
             File file = new File("D:\\Git Repositories\\Social-Media-webapp\\Backend\\src\\main\\resources\\static\\default_profilePicture.jpg"); //windows

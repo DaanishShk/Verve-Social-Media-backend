@@ -2,6 +2,7 @@ package com.webapp.socialmedia.logic.services;
 
 import com.webapp.socialmedia.domain.model.account.Account;
 import com.webapp.socialmedia.domain.model.account.AccountProfile;
+import com.webapp.socialmedia.domain.model.image.Image;
 import com.webapp.socialmedia.domain.model.stats.ProfileStats;
 import com.webapp.socialmedia.domain.repositories.AccountProfileRepository;
 import com.webapp.socialmedia.domain.repositories.AccountRepository;
@@ -121,5 +122,9 @@ public class AccountService {
 
     public boolean checkIfUsernameExists(String username) {
         return accountRepository.existsAccountByUsername(username);
+    }
+
+    public Image getProfilePictureFromUsername(String username) {
+        return accountRepository.findImageByAccountUsername(username);
     }
 }

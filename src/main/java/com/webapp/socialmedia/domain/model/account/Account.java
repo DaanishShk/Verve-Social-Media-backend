@@ -36,7 +36,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
 //    @OneToOne   // can get account info when go to profile
 //    private AccountProfile accountProfile;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Image profilePic;
     private String displayName;
