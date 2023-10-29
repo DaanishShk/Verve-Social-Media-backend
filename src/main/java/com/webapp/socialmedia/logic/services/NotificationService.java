@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -44,5 +45,10 @@ public class NotificationService {
 
     public void notifyUser(Account ownerAccount) {
         this.websocket.convertAndSendToUser(ownerAccount.getUsername(), "/notifications", "New notification");       // /user/{username}/destination
+    }
+
+    @Transactional
+    public void removePostNotifications(Post post) {
+        notificationRepository.deleteNotificationsByPost(post);
     }
 }

@@ -40,6 +40,9 @@ public class PostService {
     @Autowired
     private PostEvent postEvent;
 
+    @Autowired
+    private NotificationService notificationService;
+
 
     public Post saveNewPost(Post post) {
         post.setComments(new ArrayList<>());
@@ -185,6 +188,7 @@ public class PostService {
             throw new ApiRequestException("Post does not belong to user");
         }
         account.getStats().setTotalPosts(account.getStats().getTotalPosts() - 1);
+        notificationService.removePostNotifications(post);
         postRepository.deleteById(id);
         return "Post deleted";
     }
