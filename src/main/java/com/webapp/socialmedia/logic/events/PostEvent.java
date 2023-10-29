@@ -21,8 +21,8 @@ public class PostEvent {
 
     @Async
     public void postStatus(Post post) {
-        int likes = count.stream().reduce((c, curr) -> c <= post.getCountVotes().getLikes() ? c : curr).orElse(0);
-        int comments = count.stream().reduce((c, curr) -> c <= post.getCommentsLength() ? c : curr).orElse(0);
+        int likes = count.stream().reduce(0, (c, curr) -> c <= post.getCountVotes().getLikes() ? c : curr);
+        int comments = count.stream().reduce(0, (c, curr) -> c <= post.getCommentsLength() ? c : curr);
 
         if (count.contains(likes)) {
             notificationService.createNotification(
