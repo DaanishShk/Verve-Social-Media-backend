@@ -184,7 +184,8 @@ public class PostService {
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountService.getByUsername(username);
-        if (!post.getAccount().getUsername().equals(username)) {
+        if (!post.getAccount().getUsername().equals(username) && account.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             throw new ApiRequestException("Post does not belong to user");
         }
         account.getStats().setTotalPosts(account.getStats().getTotalPosts() - 1);

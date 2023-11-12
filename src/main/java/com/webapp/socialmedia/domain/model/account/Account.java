@@ -65,7 +65,10 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (role == null) return authorities;
+        if (role == null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            return authorities;
+        }
 
         authorities.add(new SimpleGrantedAuthority(role));
 
