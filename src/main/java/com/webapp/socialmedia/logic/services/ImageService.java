@@ -61,6 +61,10 @@ public class ImageService {
         return new ResponseEntity<>(image.getContent(), headers, HttpStatus.FOUND);
     }
 
+    public Image getProfilePicture(String username) {
+        return accountService.getProfilePictureFromUsername(username);
+    }
+
     @Cacheable(value = "imagesBackground", key = "#username")
     public ResponseEntity<byte[]> viewBackground(@PathVariable String username) {
         Image image = accountProfileService.getBackgroundFromUsername(username);

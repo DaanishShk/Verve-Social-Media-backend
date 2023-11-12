@@ -49,7 +49,8 @@ public class SettingsController {
         Account account = accountService.getByUsername(username);
         account.setDisplayName(displayName);
 
-        Image im = account.getProfilePic();
+//        Image im = account.getProfilePic();
+        Image im = imageService.getProfilePicture(username);
         if (im == null) im = new Image();
         im.setContent(image.getBytes());
         im.setMediaType(image.getContentType());

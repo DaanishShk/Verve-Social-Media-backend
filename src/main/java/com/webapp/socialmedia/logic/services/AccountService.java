@@ -9,6 +9,7 @@ import com.webapp.socialmedia.domain.repositories.AccountRepository;
 import com.webapp.socialmedia.domain.responses.FollowResponse;
 import com.webapp.socialmedia.logic.events.AccountEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +32,8 @@ public class AccountService {
     private AccountRepository accountRepository;
     @Autowired
     private AccountEvent accountEvent;
+    @Autowired
+    private CacheManager cacheManager;
 
     @Cacheable(value = "accounts", key = "#username")
     public Account getByUsername(String username) {
@@ -57,8 +60,9 @@ public class AccountService {
         this.saveAccount(account);
     }
 
-    @CacheEvict(value = "accounts", key = "#account.username")
+    //    @CacheEvict(value = "accounts", key = "#account.username")
     public void saveAccount(Account account) {
+        cacheManager.getCache("accounts").evict(account.getUsername());
         accountRepository.save(account);
     }
 
@@ -78,7 +82,7 @@ public class AccountService {
         }
         followAccount = accountRepository.getById(followAccount.getId());
         following.add(followAccount);
-        accountRepository.save(account);
+        this.saveAccount(account);
 
         accountEvent.followerCountNotification(followAccount, getNumberFollowers(followAccount));
 
