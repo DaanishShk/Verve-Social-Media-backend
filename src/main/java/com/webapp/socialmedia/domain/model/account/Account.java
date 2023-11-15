@@ -57,11 +57,11 @@ public class Account extends AbstractPersistable<Long> implements UserDetails { 
     @JsonBackReference("following")
     private Set<Account> following;     // check how spring creates a contains method (by id maybe?)
 
-    @JsonIgnore
     private String role;
 //    @JsonIgnore
 //    private boolean enabled = false;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
