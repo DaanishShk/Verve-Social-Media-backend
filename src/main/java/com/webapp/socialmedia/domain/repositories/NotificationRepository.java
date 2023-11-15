@@ -2,6 +2,7 @@ package com.webapp.socialmedia.domain.repositories;
 
 import com.webapp.socialmedia.domain.model.account.Account;
 import com.webapp.socialmedia.domain.model.notifications.Notification;
+import com.webapp.socialmedia.domain.model.notifications.NotificationType;
 import com.webapp.socialmedia.domain.model.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     public Long countNotificationsByOwnerAccountAndViewedIsFalse(Account ownerAccount);
 
     public void deleteNotificationsByPost(Post post);
+
+    public boolean existsNotificationByMessageAndOwnerAccountAndPostAndType(String message, Account ownerAccount, Post post, NotificationType type);
 }

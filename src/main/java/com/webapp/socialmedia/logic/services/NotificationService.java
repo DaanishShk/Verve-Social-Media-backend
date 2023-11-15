@@ -47,6 +47,10 @@ public class NotificationService {
         this.websocket.convertAndSendToUser(ownerAccount.getUsername(), "/notifications", "New notification");       // /user/{username}/destination
     }
 
+    public boolean doesPostNotificationExist(String message, Account account, Post post) {
+        return notificationRepository.existsNotificationByMessageAndOwnerAccountAndPostAndType(message, account, post, NotificationType.POST);
+    }
+
     @Transactional
     public void removePostNotifications(Post post) {
         notificationRepository.deleteNotificationsByPost(post);

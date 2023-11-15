@@ -17,14 +17,17 @@ public class PostEvent {
     private NotificationService notificationService;
     private String likesCount = "Your post just hit %d likes!";
     private String commentCount = "Your post has %d comments";
-    private List<Integer> count = List.of(5, 10, 25, 50, 75, 100, 250, 500, 1000);
+    private List<Integer> count = List.of(1, 5, 10, 25, 50, 75, 100, 250, 500, 1000);
 
     @Async
     public void postStatus(Post post) {
-        int likes = count.stream().reduce(0, (c, curr) -> c <= post.getCountVotes().getLikes() ? c : curr);
-        int comments = count.stream().reduce(0, (c, curr) -> c <= post.getCommentsLength() ? c : curr);
+        int likes = count.stream().reduce(0, (c, curr) -> curr <= post.getCountVotes().getLikes() ? curr : c);
+        int comments = count.stream().reduce(0, (c, curr) -> curr <= post.getCommentsLength() ? curr : c);
 
-        if (count.contains(likes)) {
+        if (count.contains(likes) && !notificationService.doesPostNotificationExist(
+                String.format(likesCount, likes),
+                post.getAccount(),
+                post)) {
             notificationService.createNotification(
                     String.format(likesCount, likes),
                     post.getAccount(),
@@ -34,7 +37,10 @@ public class PostEvent {
             notificationService.notifyUser(post.getAccount());
         }
 
-        if (count.contains(comments)) {
+        if (count.contains(comments) && !notificationService.doesPostNotificationExist(
+                String.format(commentCount, comments),
+                post.getAccount(),
+                post)) {
             notificationService.createNotification(
                     String.format(commentCount, comments),
                     post.getAccount(),

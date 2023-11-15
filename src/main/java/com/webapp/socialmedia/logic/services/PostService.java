@@ -90,14 +90,13 @@ public class PostService {
         Post post = posts.get(0);
         Account account = accountService.getByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
+        postEvent.postStatus(post);
+
         if (post.getAccount().getUsername().equals(account.getUsername())) {
             return post;
         } else if (post.getVisibility() == Visibility.FRIENDS && !account.getFriends().contains(post.getAccount())) {
             throw new PrivatePostException("post is only visible to friends");
         }
-
-
-        postEvent.postStatus(post);
         return post;
 
     }
